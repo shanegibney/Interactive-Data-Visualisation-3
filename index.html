@@ -97,10 +97,12 @@
     stroke: #888;
   }
 
-  /* div {
-    border: 1px lightgray solid;
-    border-radius: 15px;
-  } */
+  div {
+    /* border: 1px lightgray solid;
+    border-radius: 15px; */
+    background-color: #FEF6EB;
+    /* #C25B56 */
+  }
 
   /* svg {
     border: 1px red solid;
@@ -118,7 +120,7 @@
 <body>
   <ul class="nav nav-tabs">
     <li class="nav-item">
-      <a class="nav-link active" href="https://github.com/shanegibney/Interactive-Data-Visualisation-II">Home</a>
+      <a class="nav-link active" style="background: #FEF6EB; border-bottom:1px solid #FEF6EB" href="https://github.com/shanegibney/Interactive-Data-Visualisation-II">Home</a>
     </li>
     <li class="nav-item dropdown">
       <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Mens Races</a>
@@ -189,6 +191,9 @@
       <div class="col-md-12">
         <h5>To do:</h5>
         <ol>
+          <li>Clicking pir slices twice removes it. It should take that category out of filtering</li>
+          <li>Ticks and axes all need to be lightgray</li>
+          <li>Remove small white line beneath Home button</li>
           <li>Need a bar chart for points by club, similar to number of swimmers by club</li>
           <li>Numbers on origin bar chart need to appear just after animation and to fade in</li>
           <li>Origin bar chart should be sorted with largest bars on left and decreasing to right</li>
@@ -199,11 +204,12 @@
           <li>Add mouseover tooltip to main bar chart, given swimmer's details</li>
           <li>Add points data and axis on right for points, display on main bar chart</li>
           <li>Add table below and make it adhere to filters: should behave like main bar chart in terms of filtering and updating</li>
-          <li>Table should be sortable on columns</li>
+          <li><strike>Table should be sortable on columns</strike></li>
           <li>Add pan and zoom to main bar chart</li>
-          <li>Make sortable on value1, value2 and value3. Need buttons for this as before. Values 1 to 3 map to racetime, clocktime and handicap but not necessarily in that order.</li>
-          <li>Mouse over tooltips for origin bar chart</li>
+          <li><strike>Make sortable on value1, value2 and value3. Need buttons for this as before. Values 1 to 3 map to racetime, clocktime and handicap but not necessarily in that order.</li>
+          <li>Mouse over tooltips for origin bar chart</strike></li>
           <li>Mouse over on origin bar chart to display horizontal line to show comparison with other bars</li>
+          <li>Centre all svg's in their div's. May not be possible due to left and right margins</li>
           <li>Refresh data button not working. Odd behaviour here even in the simplest case when clicking the 'Refresh' in the nav bar does not even console.log a simple string.</li>
           <li>Add update pattern to pie chart for when new race data is used, not for when filtering. So for when used initially. This is the implementation of teh arcTween function. It may need .call()</li>
           <li>Create PDF of each element live or of whole page. There is a library which places HTML elements into pdf documents.</li>
@@ -213,7 +219,7 @@
           <li>Nested dropdown: choose year and then race</li>
           <li>Consider a result by swimmer page. Clicking on a swimmer will bring up their indiviual results. Difficult as data for this will need to be sourced over all races.</li>
           <li>Consider a result by club page.</li>
-          <li>consider an initial home page</li>
+          <li>Consider an initial home page, mainly to display stacked bar chart of points by swimmer with mouseover each section of stacked bars to display that particular race</li>
           <li>intro.js to explain how to use site</li>
         </ol>
       </div>
@@ -587,7 +593,7 @@
         .attr("width", x.bandwidth()) //why is the width not consistent
         // .attr("width", 50)
         .style('stroke', 'gray')
-        .style("fill", "#58D68D")
+        .style("fill", "#96C0CE")
         .transition(d3.transition()
           .delay(500))
         .duration(750)
@@ -660,7 +666,7 @@
         .style('stroke', 'gray')
         // .attr("width", 50)
 
-        .style("fill", "#5DADE2")
+        .style("fill", "#BEB9B5")
         .transition(d3.transition()
           .delay(500))
         .duration(750)
@@ -737,7 +743,7 @@
         .attr("width", x.bandwidth()) //why is the width not consistent
         // .attr("width", 50)
         .style('stroke', 'gray')
-        .style("fill", "#58D68D")
+        .style("fill", "#96C0CE")
         .transition(d3.transition()
           .delay(500))
         .duration(750)
@@ -808,7 +814,7 @@
         }) // bars start with zero height
         .attr("width", x.bandwidth()) //why is the width not consistent
         .style('stroke', 'gray')
-        .style("fill", "#5DADE2")
+        .style("fill", "#BEB9B5")
         .transition(d3.transition()
           .delay(500))
         .duration(750)
@@ -898,6 +904,7 @@
       svgOrigin.append("g")
         .attr("class", "xOrigin axisOrigin")
         .attr("transform", "translate(" + (margin.leftOrigin) + "," + (heightOrigin + margin.topOrigin) + ")")
+        // .style("stroke", "lightgray")
         .call(xAxisOrigin);
 
       // Add the y axis on left
@@ -1030,9 +1037,10 @@
         .attr("y", function(d, i) {
           return yOrigin(d.value);
         }) // after the transition bars goes to its correct y position
-        .style("fill", function(d, i) {
-          return color[i];
-        })
+        // .style("fill", function(d, i) {
+        //   return color[i];
+        // })
+        .style("fill", "#525564")
         .style('stroke', 'gray')
         .attr("height", function(d, i) {
           return heightOrigin - yOrigin(d.value)
@@ -1047,6 +1055,7 @@
         .append("text");
 
       //Add SVG Text Element Attributes
+      //Text number atop origin bars
       var textLabels = text
         .attr("class", "enter")
         .attr("x", function(d) {
@@ -1210,9 +1219,7 @@
             });
         })
         .style('stroke', 'gray')
-        .style("fill", function(d, i) {
-          return color[i];
-        });
+        .style("fill", "#C25B56");
       g.append("text")
         .attr("transform", function(d) {
           return "translate(" + labelArc.centroid(d) + ")";
