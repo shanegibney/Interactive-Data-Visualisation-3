@@ -587,6 +587,7 @@
         .attr("width", x.bandwidth()) //why is the width not consistent
         // .attr("width", 50)
         .style('stroke', 'gray')
+        .style("fill", "#58D68D")
         .transition(d3.transition()
           .delay(500))
         .duration(750)
@@ -595,9 +596,6 @@
         }) // after the transition bars goes to its correct y position
         .attr("height", function(d, i) {
           return height - y(d.clocktime)
-        })
-        .style("fill", function(d, i) {
-          return "#58D68D";
         }); // after transition bar grows to its full height
 
 
@@ -661,6 +659,8 @@
         .attr("width", x.bandwidth()) //why is the width not consistent
         .style('stroke', 'gray')
         // .attr("width", 50)
+
+        .style("fill", "#5DADE2")
         .transition(d3.transition()
           .delay(500))
         .duration(750)
@@ -669,10 +669,6 @@
         }) // after the transition bars goes to its correct y position
         .attr("height", function(d, i) {
           return height - y(d.handicap)
-        })
-        .style("fill", function(d, i) {
-          // return color[i];
-          return "#5DADE2";
         }); // after transition bar grows to its full height
 
 
@@ -695,7 +691,7 @@
       newRects0brush.exit()
         .attr("class", function(d) {
           return "exit barbrush";
-        }) // fill red
+        })
         .transition(d3.transition()
           // .delay(0)
           .duration(750))
@@ -741,6 +737,7 @@
         .attr("width", x.bandwidth()) //why is the width not consistent
         // .attr("width", 50)
         .style('stroke', 'gray')
+        .style("fill", "#58D68D")
         .transition(d3.transition()
           .delay(500))
         .duration(750)
@@ -749,9 +746,6 @@
         }) // after the transition bars goes to its correct y position
         .attr("height", function(d, i) {
           return height2 - y2(d.clocktime)
-        })
-        .style("fill", function(d, i) {
-          return "#58D68D";
         }); // after transition bar grows to its full height
 
 
@@ -769,7 +763,7 @@
       newRects1.exit()
         .attr("class", function(d) {
           return "exit barbrush";
-        }) // fill red
+        })
         .transition(d3.transition()
           // .delay(0)
           .duration(750))
@@ -808,13 +802,13 @@
         .attr("x", function(d) {
           return x2(d.name);
         })
-        .attr("y", height) // bars start on xaxis or position y=height
+        .attr("y", height2) // bars start on xaxis or position y=height
         .attr("height", function(d) {
           return 0;
         }) // bars start with zero height
         .attr("width", x.bandwidth()) //why is the width not consistent
         .style('stroke', 'gray')
-        // .attr("width", 50)
+        .style("fill", "#5DADE2")
         .transition(d3.transition()
           .delay(500))
         .duration(750)
@@ -823,10 +817,6 @@
         }) // after the transition bars goes to its correct y position
         .attr("height", function(d, i) {
           return height2 - y2(d.handicap)
-        })
-        .style("fill", function(d, i) {
-          // return color[i];
-          return "#5DADE2";
         }); // after transition bar grows to its full height
 
       context.append("g")
