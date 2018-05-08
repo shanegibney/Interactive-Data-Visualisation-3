@@ -2,6 +2,6 @@
 
 gh-pages [demo](https://shanegibney.github.io/Interactive-Data-Visualisation-3/)
 
-This project is an extension of [Interactive Data Visualisation II](https://github.com/shanegibney/InteracIive-Data-Visualisation-II)
+This project is an extension of [Interactive Data Visualisation II](https://github.com/shanegibney/Interactive-Data-Visualisation-3)
 
-<a href="https://shanegibney.github.io/Interactive-Data-Visualisation-3/"><img width="1438" alt="screen shot 2018-05-08 at 11 39 52" src="https://user-images.githubusercontent.com/17167992/39752850-96f2a8fa-52b4-11e8-9d5d-dc5cc619a013.png"></a>
+<a href="https://shanegibney.github.io/Interactive-Data-Visualisation-3/"><img width="1440" alt="screen shot 2018-05-08 at 22 18 19" src="https://user-images.githubusercontent.com/17167992/39783699-d0794bac-530d-11e8-9171-ea4400763040.png"></a>
