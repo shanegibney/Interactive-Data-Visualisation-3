@@ -1,0 +1,1421 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+  body {
+    background-color: lightblue;
+  }
+
+  .container {
+    margin-left: 0px;
+  }
+
+  .exit {
+    /* fill: red; */
+  }
+
+  .update {
+    /* fill: orange; */
+  }
+
+  .enter {
+    /* fill: green; */
+  }
+
+  .filter {
+    font-size: 15px;
+  }
+
+  #json {
+    max-height: 600px;
+    width: 150px;
+    font-size: 10px;
+    overflow: scroll;
+    border: 2px solid gray;
+    border-radius: 15px;
+  }
+
+  table {
+    width: 60%;
+    border-collapse: collapse;
+    margin: 0px auto;
+  }
+
+  /* Zebra striping */
+
+  tr:nth-of-type(odd) {
+    /* background: #eee;*/
+    background: lightblue;
+  }
+
+  tr:nth-of-type(even) {
+    /* background: #eee;*/
+    background: lightgray;
+  }
+
+  th {
+    background: #333;
+    color: white;
+    font-weight: bold;
+    cursor: s-resize;
+    background-repeat: no-repeat;
+    background-position: 3% center;
+  }
+
+  td {
+    padding: 6px;
+    border: 1px solid #ccc;
+    text-align: center;
+  }
+
+  th {
+    padding: 6px;
+    border: 1px solid #ccc;
+    text-align: center;
+  }
+
+  th.des:after {
+    content: "\21E3";
+  }
+
+  th.aes:after {
+    content: "\21E1";
+  }
+
+  .zoom {
+    cursor: move;
+    fill: none;
+    pointer-events: all;
+  }
+
+  .axis {
+    stroke-width: 0.5px;
+    stroke: #888;
+    font: 10px avenir next, sans-serif;
+  }
+
+  .axis>path {
+    stroke: #888;
+  }
+
+  /* div {
+    border: 1px lightgray solid;
+    border-radius: 15px;
+  } */
+
+  /* svg {
+    border: 1px red solid;
+    border-radius: 5px;
+    margin: 0 auto;
+  } */
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" crossorigin="anonymous">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" crossorigin="anonymous"></script>
+
+<body>
+  <ul class="nav nav-tabs">
+    <li class="nav-item">
+      <a class="nav-link active" href="https://github.com/shanegibney/Interactive-Data-Visualisation-II">Home</a>
+    </li>
+    <li class="nav-item dropdown">
+      <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Mens Races</a>
+      <div class="dropdown-menu">
+        <a class="dropdown-item" onclick="updateFunction('1','true')" href="#">data1.json</a>
+        <a class="dropdown-item" onclick="updateFunction('2','true')" href="#">data2.json</a>
+      </div>
+    </li>
+    <li class="nav-item dropdown">
+      <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Womens Races</a>
+      <div class="dropdown-menu">
+        <a class="dropdown-item" onclick="updateFunction('1','true')" href="#">data1.json</a>
+        <a class="dropdown-item" onclick="updateFunction('2','true')" href="#">data2.json</a>
+      </div>
+    </li>
+    <li class="nav-item dropdown">
+      <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Sort By</a>
+      <div class="dropdown-menu">
+        <a class="dropdown-item" onclick="sortFunction('clock')" href="#">Clocktime</a>
+        <a class="dropdown-item" onclick="sortFunction('race')" href="#">Racetime</a>
+        <a class="dropdown-item" onclick="sortFunction('handicap')" href="#">Handicap</a>
+      </div>
+    </li>
+    <li class="nav-item">
+      <!-- <a class="nav-link" onclick="updateFunction('1','true')" href="#">Refresh</a>-->
+      <a class="nav-link" onclick="refreshFunction()" href="#">Refresh</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="https://github.com/shanegibney/Interactive-Data-Visualisation-II">Link</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#">About</a>
+    </li>
+    <!-- <li class="nav-item">
+      <a class="nav-link disabled" href="#">INTERACTIVE DASH-BOARD (d3.js v4)</a>
+    </li> -->
+    <li class="nav-item"><span class="nav-link">Leinster Open Sea Races</span></li>
+  </ul>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-12" id="filter">
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-10">
+        <div class="row">
+          <div class="col-md-12" id="race_graph">
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-4" id="pie">
+          </div>
+          <div class="col-md-8" id="race_graph_origin">
+          </div>
+        </div>
+      </div>
+      <div class="col-md-2" id="json">
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-1">
+
+      </div>
+      <div class="col-md-8" id="table">
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12">
+        <h5>To do:</h5>
+        <ol>
+          <li>Need a bar chart for points by club, similar to number of swimmers by club</li>
+          <li>Numbers on origin bar chart need to appear just after animation and to fade in</li>
+          <li>Origin bar chart should be sorted with largest bars on left and decreasing to right</li>
+          <li>Check responsiveness of site</li>
+          <li><strike>Convert all integers values to time values and call them value1</strike></li>
+          <li><strike> Add two more such values: value2 and value3</strike></li>
+          <li>x-axis to display full names and at a slant</li>
+          <li>Add mouseover tooltip to main bar chart, given swimmer's details</li>
+          <li>Add points data and axis on right for points, display on main bar chart</li>
+          <li>Add table below and make it adhere to filters: should behave like main bar chart in terms of filtering and updating</li>
+          <li>Table should be sortable on columns</li>
+          <li>Add pan and zoom to main bar chart</li>
+          <li>Make sortable on value1, value2 and value3. Need buttons for this as before. Values 1 to 3 map to racetime, clocktime and handicap but not necessarily in that order.</li>
+          <li>Mouse over tooltips for origin bar chart</li>
+          <li>Mouse over on origin bar chart to display horizontal line to show comparison with other bars</li>
+          <li>Refresh data button not working. Odd behaviour here even in the simplest case when clicking the 'Refresh' in the nav bar does not even console.log a simple string.</li>
+          <li>Add update pattern to pie chart for when new race data is used, not for when filtering. So for when used initially. This is the implementation of teh arcTween function. It may need .call()</li>
+          <li>Create PDF of each element live or of whole page. There is a library which places HTML elements into pdf documents.</li>
+          <li>Setup opacity to react correctly on pie chart and origin bar chart on mousover. May need to create a separate project to test this on data svg elements. initially all sections/bars are opacity 1, on mouseover all go to 0.2 except for section
+            currently being moused over, that remains at 1.0. When clicked it stays at 1.0 and all unclicked stay on 0.2 opacity. If none or all are clicked then all sections should be at opacity 1.0. Note when none are chosen, the main bar chart displays
+            as if all are chosen. This in fine, because we never want to unselect all sections.</li>
+          <li>Nested dropdown: choose year and then race</li>
+          <li>Consider a result by swimmer page. Clicking on a swimmer will bring up their indiviual results. Difficult as data for this will need to be sourced over all races.</li>
+          <li>Consider a result by club page.</li>
+          <li>consider an initial home page</li>
+          <li>intro.js to explain how to use site</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <script src="d3v4.js"></script>
+  <script>
+    // set the dimensions and margins of the graph
+    var margin = {
+        top: 0,
+        right: 50,
+        bottom: 100,
+        left: 80,
+        topOrigin: 60,
+        rightOrigin: 50,
+        bottomOrigin: 20,
+        leftOrigin: 80,
+        topPie: 60,
+        rightPie: 50,
+        bottomPie: 0,
+        leftPie: 80
+      },
+      margin2 = { //brush
+        // top: 380,
+        top: 250,
+        right: 50,
+        bottom: 20,
+        left: 80
+      },
+      width = 1000 - margin.left - margin.right,
+      height = 300 - margin.top - margin.bottom, //500-70-50=380
+      height2 = 300 - margin2.top - margin2.bottom, //500-450-20=30
+      radius = 120;
+
+    var color = ["#2C93E8", "#838690", "#F56C4E", "#A60F2B", "#648C85", "#B3F2C9", "#528C18", "#C3F25C"];
+
+    var off_opacity = 1.0;
+
+    // these arrays record have groups have been clicked to set filtering of data
+    var categoryArr = [];
+    var originArr = [];
+    var num;
+    var index = 1;
+    var indexTemp = ''; //a number never used
+    var drawNew = true;
+    var num;
+    var str;
+    var data = null;
+
+    function refreshFunction() { // reloads the entire page as if newly opening it
+      location.reload();
+    }
+
+    function sortFunction(sortOn) {
+      console.log("Sort by: " + sortOn);
+    }
+    // function init(indexInit) {
+    //   categoryArr = [];
+    //   originArr = [];
+    //   data = [];
+    //   newdata = [];
+    //   index = indexInit;
+    //   // console.log("init -> index = " + index);
+    //   console.log("init -> indexInit = " + indexInit);
+    //   updateFunction(index);
+    // }
+    updateFunction(index, drawNew);
+
+    function updateFunction(index, drawNew) {
+
+
+      if (indexTemp != index) { //when a new data set is used clear the filter arrays
+        drawNew = true;
+        // refresh(index);
+      }
+      indexTemp = index;
+      var filter = '';
+
+      d3.json("data" + index + ".json", function(error, newdata) {
+
+        data = newdata;
+
+        var parseTime = d3.timeParse("%M:%S");
+        var timeformat = d3.timeFormat("%M:%S");
+
+        var stringConditionCategory = ''; //construct condition
+        var stringConditionOrigin = ''; //construct condition
+        var stringCondition = '';
+
+        if (error) throw error;
+        data = newdata;
+
+        if (drawNew == true) {
+          //clearing filter arrays
+          originArr = [];
+          categoryArr = [];
+        }
+
+        if (originArr.length > 0) { //if originArr has elements
+          for (var i = 0; i < originArr.length; i++) {
+            if (i > 0) {
+              stringConditionOrigin += '&&';
+            }
+            stringConditionOrigin += '(newdata[i].origin != "' + originArr[i] + '")';
+          }
+          // filter out all data which does not have origins listed in the originArr array
+          for (var i = newdata.length - 1; i >= 0; i--) {
+            if (eval(stringConditionOrigin)) {
+              num = newdata.indexOf(newdata[i]);
+              newdata.splice(i, 1);
+            }
+          }
+        }
+
+        if (categoryArr.length > 0) { //only categoryArr has elements
+          for (var i = 0; i < categoryArr.length; i++) {
+            if (i > 0) {
+              stringConditionCategory += '&&';
+            }
+            stringConditionCategory += '(newdata[i].category != "' + categoryArr[i] + '")';
+          }
+          // filter out all data which does not have categories listed in the categoryArr array
+          for (var i = newdata.length - 1; i >= 0; i--) {
+            if (eval(stringConditionCategory)) {
+              num = newdata.indexOf(newdata[i]);
+              newdata.splice(i, 1);
+            }
+          }
+        }
+
+        // To display json in html page
+        document.getElementById("json").innerHTML = "<h5>data" + index + ".json</h5>" + "<pre>" + JSON.stringify(newdata, null, 2) + "</pre>";
+
+        // display how data is filtered
+        if (categoryArr.length > 0) {
+          filter += categoryArr;
+        }
+        if (originArr.length > 0) {
+          if (filter.length > 0) {
+            filter += ",";
+          }
+          filter += originArr;
+        }
+        if (filter.length > 0) {
+          document.getElementById("filter").innerHTML = "<span class='filter'><pre>Filtered by: " + filter + "</pre></span>";
+        } else {
+          document.getElementById("filter").innerHTML = "<h5><pre></pre></h5>";
+        }
+
+        // data.forEach(function(d) {
+        //   d.clocktime = +d.clocktime;
+        // })
+        data.forEach(function(d) {
+          d.clocktime = parseTime(d.clocktime);
+          d.handicap = parseTime(d.handicap);
+        });
+
+        d3.select("svg").remove(); //this will clear all charts
+        updateBar();
+        updateTable(index);
+
+        if (drawNew == true) {
+          drawNew = false;
+          updatePie(index); //only draw pie chart initially
+          updateBarOrigin(index);
+        };
+      });
+    }
+
+    //---------------------------------------------------------------
+    //--------------****** Start Main Bar Chart ******---------------
+    //---------------------------------------------------------------
+
+    function updateBar(err, newdata) { //****************************
+
+
+      var parseTime = d3.timeParse("%M:%S");
+
+      // Add main graph svg
+      var svgBar = d3.select("#race_graph")
+        .append("svg")
+        .attr("width", width + margin.left + margin.right) //1000
+        .attr("height", height + margin.top + margin.bottom); //400
+
+      var focus = svgBar.append("g")
+        .attr("class", "focus")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+      var context = svgBar.append("g")
+        .attr("class", "context")
+        .attr("transform", "translate(" + margin2.left + "," + margin2.top + ")");
+
+      var x = d3.scaleBand()
+        .range([0, width])
+        .padding([0.6]),
+
+        y = d3.scaleTime()
+        .range([height, 0]),
+
+        x2 = d3.scaleBand()
+        .range([0, width])
+        .padding([0.6]),
+
+        y2 = d3.scaleTime()
+        .range([height2, 0]);
+
+      var xAxis = d3.axisBottom(x);
+      var xAxis2 = d3.axisBottom(x2);
+      var yAxis = d3.axisLeft(y).ticks(8).ticks(7).tickFormat(d3.timeFormat("%M:%S"));
+
+      var zoom = d3.zoom()
+        .scaleExtent([1, 2])
+        .translateExtent([
+          [0, 0],
+          [width, height]
+        ])
+        .extent([
+          [0, 0],
+          [width, height]
+        ])
+        .on("zoom", zoomed);
+
+      var brush = d3.brushX()
+        .extent([
+          [0, 0],
+          [width, height2]
+        ]);
+      // .on("start brush end", brushed);
+      // .on("brush", brushed);
+
+
+      svgBar.append("defs").append("clipPath")
+        .attr("id", "clip")
+        .append("rect")
+        .attr("width", width)
+        .attr("height", height);
+
+      svgBar.append("rect")
+        .attr("class", "zoom")
+        .attr("width", width)
+        .attr("height", height)
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+        .call(zoom); //see var zoom above
+
+      // Add groups for main bar chart clicktime
+      var g0 = focus.append("g")
+        .attr("class", "g0");
+
+      // Add groups for main bar chart handicap
+      var g1 = focus.append("g")
+        .attr("class", "g1");
+
+      // Add groups for main bar chart clicktime
+      var g0brush = context.append("g")
+        .attr("class", "g0");
+
+      // Add groups for main bar chart handicap
+      var g1brush = context.append("g")
+        .attr("class", "g1");
+
+      // set the domains
+      x.domain(data.map(function(d) {
+        return d.name
+      }));
+      y.domain([parseTime('00:00'), d3.max(data, function(d) {
+        return d.clocktime
+      })]);
+      x2.domain(x.domain());
+      y2.domain(y.domain());
+
+      // Add the X Axis
+      // svgBar.select(".x.axis").call(xAxis);
+      focus.select(".x.axis").remove();
+      // svgBar.append("g")
+      focus.append("g")
+        .attr("class", "x axis")
+        // .attr("transform", "translate(" + (margin.left) + "," + (height + margin.top) + ")")
+        .attr("transform", "translate(0," + (height) + ")")
+        .call(xAxis);
+
+      focus.append("g")
+        .attr("class", "axis axis--y")
+        // .attr("class", ".y.axis")//makes y axis black
+        // .attr("transform", "translate(" + (margin.left) + "," + margin.top + ")")
+        .call(d3.axisLeft(d3.scaleLinear()
+          .domain([parseTime('00:00'), d3.max(data, function(d) {
+            return parseTime(d.clocktime); //slightly different to previous working file
+          })])
+          .range([height, 0])).tickSize(0))
+        .call(yAxis);
+
+      // Add the y axis on left
+      // svgBar.select(".y.axis").remove();
+      // svgBar.append("g")
+      //   .attr("class", "y axis")
+      //   .attr("transform", "translate(" + (margin.left) + "," + margin.top + ")")
+      //   .call(yAxis);
+
+      // Add the y axis on left
+      // svgBar.append("g")
+      //   .attr("class", "axis")
+      //   .attr("transform", "translate(" + (margin.left) + "," + margin.top + ")")
+      //   .call(d3.axisLeft(y)
+      //     .ticks(7)
+      //     .tickFormat(d3.timeFormat("%M:%S"))
+      //   );
+
+      //---------------------------------------------------------------
+      //----****** Start Main Bar Chart Rects for clocktime ******-----
+      //---------------------------------------------------------------
+
+      // JOIN new data with old elements
+      var newRects0 = g0.selectAll(".bar")
+        // var newRects0 = g0.append("g");
+        // newRects0.attr("clip-path", "url(#clip)");
+        // newRects0.selectAll(".bar")
+        // .data(data);
+        .data(data, function(d) {
+          return d.name;
+        });
+      // newRects0.attr("clip-path", "url(#clip)");
+
+      // EXIT old elements not present in new data
+      newRects0.exit()
+        .attr("class", function(d) {
+          return "exit bar";
+        }) // fill red
+        .transition(d3.transition()
+          // .delay(0)
+          .duration(750))
+        .attr("width", x.bandwidth())
+        .attr("y", function(d) {
+          return height;
+        }) // old elements which are leaving the chart, their y position transitions to the xaxis
+        .attr("height", function(d) {
+          return 0;
+        }) // old elements which are leaving the chart, therir height trasnitions to 0
+        .remove();
+
+      // UPDATE old elements present in new data
+      newRects0.attr("class", function(d) {
+          return "update bar";
+        })
+        .transition(d3.transition()
+          .delay(500))
+        .duration(750)
+        .attr("width", x.bandwidth())
+        .attr("x", function(d) {
+          return x(d.name);
+        }) // old elememnts in new data transition to their new position
+        .attr("y", function(d) {
+          return y(d.clocktime)
+        }) // old elememnts in new data transition to their y position
+        .attr("height", function(d, i) {
+          return height - y(d.clocktime)
+        }); // old elememnts in new data transition to their correct height
+
+      // ENTER new elements present in new data
+      // EXIT and UPDATE above will not apply first time render as there is no change to the data.
+      newRects0.enter()
+        .append('rect')
+        .attr("class", "enter bar") // fill green
+        .attr("x", function(d) {
+          return x(d.name);
+        })
+        .attr("y", height) // bars start on xaxis or position y=height
+        .attr("height", function(d) {
+          return 0;
+        }) // bars start with zero height
+        .attr("width", x.bandwidth()) //why is the width not consistent
+        // .attr("width", 50)
+        .style('stroke', 'gray')
+        .transition(d3.transition()
+          .delay(500))
+        .duration(750)
+        .attr("y", function(d, i) {
+          return y(d.clocktime);
+        }) // after the transition bars goes to its correct y position
+        .attr("height", function(d, i) {
+          return height - y(d.clocktime)
+        })
+        .style("fill", function(d, i) {
+          return "#58D68D";
+        }); // after transition bar grows to its full height
+
+
+      //---------------------------------------------------------------
+      //-----****** Start Main Bar Chart Rects for handicap ******-----
+      //---------------------------------------------------------------
+
+      // JOIN new data with old elements
+      var newRects1 = g1.selectAll(".bar")
+        .data(data, function(d) {
+          return d.name;
+        });
+
+      // EXIT old elements not present in new data
+      newRects1.exit()
+        .attr("class", function(d) {
+          return "exit bar";
+        }) // fill red
+        .transition(d3.transition()
+          // .delay(0)
+          .duration(750))
+        .attr("width", x.bandwidth())
+        .attr("y", function(d) {
+          return height;
+        }) // old elements which are leaving the chart, their y position transitions to the xaxis
+        .attr("height", function(d) {
+          return 0;
+        }) // old elements which are leaving the chart, therir height trasnitions to 0
+        .remove();
+
+      // UPDATE old elements present in new data
+      newRects1.attr("class", function(d) {
+          return "update bar";
+        })
+        .transition(d3.transition()
+          .delay(500))
+        .duration(750)
+        .attr("width", x.bandwidth())
+        .attr("x", function(d) {
+          return x(d.name);
+        }) // old elememnts in new data transition to their new position
+        .attr("y", function(d) {
+          return y(d.handicap)
+        }) // old elememnts in new data transition to their y position
+        .attr("height", function(d, i) {
+          return height - y(d.handicap)
+        }); // old elememnts in new data transition to their correct height
+
+      // ENTER new elements present in new data
+      // EXIT and UPDATE above will not apply first time render as there is no change to the data.
+      newRects1.enter()
+        .append('rect')
+        .attr("class", "enter bar") // fill green
+        .attr("x", function(d) {
+          return x(d.name);
+        })
+        .attr("y", height) // bars start on xaxis or position y=height
+        .attr("height", function(d) {
+          return 0;
+        }) // bars start with zero height
+        .attr("width", x.bandwidth()) //why is the width not consistent
+        .style('stroke', 'gray')
+        // .attr("width", 50)
+        .transition(d3.transition()
+          .delay(500))
+        .duration(750)
+        .attr("y", function(d, i) {
+          return y(d.handicap);
+        }) // after the transition bars goes to its correct y position
+        .attr("height", function(d, i) {
+          return height - y(d.handicap)
+        })
+        .style("fill", function(d, i) {
+          // return color[i];
+          return "#5DADE2";
+        }); // after transition bar grows to its full height
+
+
+      //---------------------------------------------------------------
+      //----****** Start Brush Bar Chart Rects for clocktime ******-----
+      //---------------------------------------------------------------
+
+      // JOIN new data with old elements
+      var newRects0brush = g0brush.selectAll(".barbrush")
+        // var newRects0 = g0.append("g");
+        // newRects0.attr("clip-path", "url(#clip)");
+        // newRects0.selectAll(".bar")
+        // .data(data);
+        .data(data, function(d) {
+          return d.name;
+        });
+      // newRects0brush.attr("clip-path", "url(#clip)");
+
+      // EXIT old elements not present in new data
+      newRects0brush.exit()
+        .attr("class", function(d) {
+          return "exit barbrush";
+        }) // fill red
+        .transition(d3.transition()
+          // .delay(0)
+          .duration(750))
+        .attr("width", x.bandwidth())
+        .attr("y", function(d) {
+          return height2;
+        }) // old elements which are leaving the chart, their y position transitions to the xaxis
+        .attr("height", function(d) {
+          return 0;
+        }) // old elements which are leaving the chart, therir height trasnitions to 0
+        .remove();
+
+      // UPDATE old elements present in new data
+      newRects0brush.attr("class", function(d) {
+          return "update barbrush";
+        })
+        .transition(d3.transition()
+          .delay(500))
+        .duration(750)
+        .attr("width", x.bandwidth())
+        .attr("x", function(d) {
+          return x2(d.name);
+        }) // old elememnts in new data transition to their new position
+        .attr("y", function(d) {
+          return y2(d.clocktime)
+        }) // old elememnts in new data transition to their y position
+        .attr("height", function(d, i) {
+          return height2 - y2(d.clocktime)
+        }); // old elememnts in new data transition to their correct height
+
+      // ENTER new elements present in new data
+      // EXIT and UPDATE above will not apply first time render as there is no change to the data.
+      newRects0brush.enter()
+        .append('rect')
+        .attr("class", "enter barbrush") // fill green
+        .attr("x", function(d) {
+          return x2(d.name);
+        })
+        .attr("y", height2) // bars start on xaxis or position y=height
+        .attr("height", function(d) {
+          return 0;
+        }) // bars start with zero height
+        .attr("width", x.bandwidth()) //why is the width not consistent
+        // .attr("width", 50)
+        .style('stroke', 'gray')
+        .transition(d3.transition()
+          .delay(500))
+        .duration(750)
+        .attr("y", function(d, i) {
+          return y2(d.clocktime);
+        }) // after the transition bars goes to its correct y position
+        .attr("height", function(d, i) {
+          return height2 - y2(d.clocktime)
+        })
+        .style("fill", function(d, i) {
+          return "#58D68D";
+        }); // after transition bar grows to its full height
+
+
+      //---------------------------------------------------------------
+      //----****** Start Brush Bar Chart Rects for handicap ******-----
+      //---------------------------------------------------------------
+
+      // JOIN new data with old elements
+      var newRects1 = g1brush.selectAll(".barbrush")
+        .data(data, function(d) {
+          return d.name;
+        });
+
+      // EXIT old elements not present in new data
+      newRects1.exit()
+        .attr("class", function(d) {
+          return "exit barbrush";
+        }) // fill red
+        .transition(d3.transition()
+          // .delay(0)
+          .duration(750))
+        .attr("width", x.bandwidth())
+        .attr("y", function(d) {
+          return height2;
+        }) // old elements which are leaving the chart, their y position transitions to the xaxis
+        .attr("height", function(d) {
+          return 0;
+        }) // old elements which are leaving the chart, therir height trasnitions to 0
+        .remove();
+
+      // UPDATE old elements present in new data
+      newRects1.attr("class", function(d) {
+          return "update barbrush";
+        })
+        .transition(d3.transition()
+          .delay(500))
+        .duration(750)
+        .attr("width", x.bandwidth())
+        .attr("x", function(d) {
+          return x2(d.name);
+        }) // old elememnts in new data transition to their new position
+        .attr("y", function(d) {
+          return y2(d.handicap)
+        }) // old elememnts in new data transition to their y position
+        .attr("height", function(d, i) {
+          return height2 - y2(d.handicap)
+        }); // old elememnts in new data transition to their correct height
+
+      // ENTER new elements present in new data
+      // EXIT and UPDATE above will not apply first time render as there is no change to the data.
+      newRects1.enter()
+        .append('rect')
+        .attr("class", "enter barbrush") // fill green
+        .attr("x", function(d) {
+          return x2(d.name);
+        })
+        .attr("y", height) // bars start on xaxis or position y=height
+        .attr("height", function(d) {
+          return 0;
+        }) // bars start with zero height
+        .attr("width", x.bandwidth()) //why is the width not consistent
+        .style('stroke', 'gray')
+        // .attr("width", 50)
+        .transition(d3.transition()
+          .delay(500))
+        .duration(750)
+        .attr("y", function(d, i) {
+          return y2(d.handicap);
+        }) // after the transition bars goes to its correct y position
+        .attr("height", function(d, i) {
+          return height2 - y2(d.handicap)
+        })
+        .style("fill", function(d, i) {
+          // return color[i];
+          return "#5DADE2";
+        }); // after transition bar grows to its full height
+
+      context.append("g")
+        .attr("class", "axis x-axis")
+        .attr("transform", "translate(0," + height2 + ")")
+        .call(xAxis2);
+
+      context.append("g")
+        .attr("class", "brush");
+      // .call(brush)
+      // .call(brush.move, x.range());
+
+    }; // end of updateBar() function
+
+
+    //---------------------------------------------------------------
+    //--------------****** Start Bar Chart Origin ******-------------
+    //---------------------------------------------------------------
+
+    function updateBarOrigin(index) { //***********************
+      // set the domains and ranges for Origin bar chart
+      d3.select(".originClass").remove();
+
+      var heightOrigin = 200;
+      var xOrigin = d3.scaleBand()
+        .range([0, width / 2])
+        .padding([0.6]);
+
+      // temporal y-scale origin bar chart
+      var yOrigin = d3.scaleLinear()
+        .range([heightOrigin, 0]);
+
+      var xAxisOrigin = d3.axisBottom(xOrigin);
+
+      var yAxisOrigin = d3.axisLeft(yOrigin)
+        .ticks(4);
+      var origin_count;
+
+      // Add origin graph svg
+      var svgOrigin = d3.select("#race_graph_origin")
+        // .data(origin_count)
+        .append("svg")
+        .attr("class", "originClass")
+        // .attr("width", width + margin.left + margin.right)
+        .attr("width", 2 * width / 3)
+        .attr("height", heightOrigin + margin.topOrigin + margin.bottomOrigin);
+
+      // Add groups for origin bar chart
+      var g0Origin = svgOrigin.append("g")
+        .attr("transform", "translate(" + margin.leftOrigin + "," + margin.topOrigin + ")");
+
+      originArr.length = 0;
+      categoryArr.length = 0;
+
+      // prepare data: count number for each origin
+      origin_count = d3.nest()
+        .key(function(d) {
+          return d.origin;
+        })
+        .rollup(function(leaves) {
+          return leaves.length;
+        })
+        .entries(data);
+      // console.log(origin_count);
+      // set the domains
+      xOrigin.domain(origin_count.map(function(d) {
+        // console.log(d.key);
+        return d.key;
+      }));
+
+      // set domain temporal y-scale
+      yOrigin.domain([0, d3.max(origin_count, function(d) {
+        return d.value;
+      })]).nice();
+
+      // Add the X Axis
+      svgOrigin.select(".xOrigin.axisOrigin").call(xAxisOrigin);
+      svgOrigin.select(".xOrigin.axisOrigin").remove();
+      svgOrigin.append("g")
+        .attr("class", "xOrigin axisOrigin")
+        .attr("transform", "translate(" + (margin.leftOrigin) + "," + (heightOrigin + margin.topOrigin) + ")")
+        .call(xAxisOrigin);
+
+      // Add the y axis on left
+      svgOrigin.select(".yOrigin.axisOrigin").remove();
+      // svgOrigin.append("g")
+      //   .attr("class", "yOrigin axisOrigin")
+      //   .attr("transform", "translate(" + (margin.left) + "," + margin.top + ")")
+      //   .call(yAxisOrigin);
+
+      var t = d3.transition()
+        .duration(750);
+
+      // JOIN new data with old elements
+      var newRects0Origin = g0Origin.selectAll(".barOrigin")
+        .data(origin_count, function(d) {
+          return d.key;
+        });
+
+      // EXIT old elements not present in new data
+      newRects0Origin.exit()
+        .attr("class", function(d) {
+          return "exit barOrigin";
+        }) // fill red
+        .transition(d3.transition()
+          // .delay(0)
+          .duration(750))
+        .attr("width", xOrigin.bandwidth())
+        .attr("y", function(d) {
+          return heightOrigin;
+        }) // old elements which are leaving the chart, their y position transitions to the xaxis
+        .attr("height", function(d) {
+          return 0;
+        }) // old elements which are leaving the chart, therir height trasnitions to 0
+        .remove();
+
+      // UPDATE old elements present in new data
+      newRects0Origin.attr("class", function(d) {
+          return "update barOrigin";
+        })
+        .transition(d3.transition()
+          .delay(500))
+        .duration(750)
+        .attr("width", xOrigin.bandwidth())
+        .attr("x", function(d) {
+          return xOrigin(d.key);
+        }) // old elememnts in new data transition to their new position
+        .attr("y", function(d) {
+          return yOrigin(d.value)
+        }) // old elememnts in new data transition to their y position
+        .attr("height", function(d, i) {
+          return heightOrigin - yOrigin(d.value)
+        }); // old elememnts in new data transition to their correct height
+
+
+      // ENTER new elements present in new data
+      newRects0Origin
+        .enter()
+        .append('rect')
+        .style("opacity", function(d, i) {
+          if (originArr.indexOf(d.key) == -1) { //category is not in the categoryArr array
+            return off_opacity;
+          } else {
+            return 1.0;
+          }
+        })
+        .on("click", function(d, i) {
+          //test if already an element of originArr, if so remove it, else add it to the array
+          if (originArr.includes(d.key)) {
+            num = originArr.indexOf(d.key);
+            originArr.splice(num, 1);
+            d3.selectAll(".barOrigin" + i) //all slices
+              .style("opacity", function(d, i) {
+                if (originArr.indexOf(d.key) == -1) { //category is not in the categoryArr array
+                  return off_opacity;
+                } else {
+                  return 1.0;
+                }
+              });
+          } else {
+            originArr.push(d.key);
+            d3.selectAll(".barOrigin" + i) //all slices
+              .style("opacity", function(d, i) {
+                if (originArr.length == 0) { // how to do this
+                  return 1.0;
+                }
+                if (originArr.indexOf(d.key) == -1) { //category is not in the categoryArr array
+                  return off_opacity;
+                } else {
+                  return 1.0;
+                }
+              });
+          }
+          updateFunction(index, 'false');
+        })
+        .on('mouseover', function(d, i) {
+          d3.selectAll(".barOrigin" + i) //all bars
+            // .attr("class", "animated bounce")
+            .style("opacity", function(d, i) {
+              if (originArr.indexOf(d.key) == -1) { //category is not in the originArr array
+                return off_opacity;
+              } else {
+                return 1.0;
+              };
+            });
+        })
+        .on('mouseout', function(d, i) {
+          d3.selectAll(".barOrigin" + i) //all bars
+            .style("opacity", function(d, i) {
+              if (originArr.indexOf(d.key) == -1) { //category is not in the originArr array
+                return off_opacity;
+              } else {
+                return 1.0;
+              };
+            });
+        })
+        .attr("class", function(d, i) {
+          return "enter barOrigin" + i + " barOrigin";
+        }) // fill green
+        .attr("x", function(d) {
+          return xOrigin(d.key);
+        })
+        .attr("y", heightOrigin) // bars start on xaxis or position y=height
+        .attr("height", function(d) {
+          return 0;
+        }) // bars start with zero height
+        .attr("width", xOrigin.bandwidth())
+        .transition(d3.transition()
+          .delay(500))
+        .duration(750)
+        .attr("y", function(d, i) {
+          return yOrigin(d.value);
+        }) // after the transition bars goes to its correct y position
+        .style("fill", function(d, i) {
+          return color[i];
+        })
+        .style('stroke', 'gray')
+        .attr("height", function(d, i) {
+          return heightOrigin - yOrigin(d.value)
+        });
+
+      var text = g0Origin.selectAll("text")
+
+        .data(origin_count, function(d) {
+          return d.key;
+        })
+        .enter()
+        .append("text");
+
+      //Add SVG Text Element Attributes
+      var textLabels = text
+        .attr("class", "enter")
+        .attr("x", function(d) {
+          return xOrigin(d.key) + 15;
+        })
+        .attr("y", function(d) {
+          return yOrigin(d.value) - 5;
+        })
+        .style("opacity", 0)
+        .text(function(d) {
+          return d.value;
+        })
+        .attr("font-family", "sans-serif")
+        .attr("font-size", "20px")
+        .transition(d3.transition()
+          .delay(1000)
+          .duration(1500))
+        .style("opacity", 1);
+
+      // .attr("fill", "red");
+
+      svgOrigin.append("text")
+        .attr("transform", "translate(250,30)")
+        .text("Swimmers by Club")
+        .style("text-anchor", "middle")
+        .style("fill", "black");
+      // after transition bar grows to its full height
+    }; // end of updateBarOrigin() function
+
+    //---------------------------------------------------------------
+    //---------------****** Start of Pie Chart *******---------------
+    //---------------------------------------------------------------
+
+    function updatePie(index) {
+      // Generate an array object on categories as a category
+      d3.select(".pieClass").remove();
+      category_count = d3.nest()
+        .key(function(d) {
+          return d.category;
+        })
+        .rollup(function(leaves) {
+          return leaves.length;
+        })
+        .entries(data);
+      var category_arcs = d3.pie()
+        .padAngle(.02)
+        .value(function(d) {
+          return d.value;
+        })
+        (category_count);
+
+      var arc = d3.arc()
+        .outerRadius(radius - 20)
+        .innerRadius(radius / 5);
+
+      var generator2 = d3.arc()
+        .outerRadius(radius)
+        .innerRadius(radius / 5);
+
+      var labelArc = d3.arc()
+        .outerRadius(radius - 30)
+        .innerRadius(radius - 100);
+
+      var heightPie = 450;
+
+      svgPie = d3.select("#pie")
+        .append("svg")
+        .attr("class", "pieClass")
+        .attr("width", 350)
+        .attr("height", 300)
+        .append("g")
+        .attr("transform", "translate(" + (margin.leftPie + radius) + "," + (margin.topPie + radius) + ")"); //center of pie
+
+      var g = svgPie.selectAll("arc")
+        .data(category_arcs)
+        .enter().append("g")
+        .attr("class", "arc");
+
+      g.append("path")
+        .attr("d", arc)
+        .attr("class", function(d, i) {
+          return "slice" + i + " enter slice";
+        })
+        //need to initially set opacities conditionally determined by categoryArr array
+        .style("opacity", function(d, i) {
+          if (categoryArr.indexOf(d.data.key) == -1) { //category is not in the categoryArr array
+            return off_opacity;
+          } else {
+            return 1.0;
+          }
+        })
+        .on('click', function(d, i) {
+          if (categoryArr.includes(d.data.key)) {
+            // arc = d3.arc()
+            //   .outerRadius(radius);
+            // .innerRadius(radius / 5);
+            // d3.select(this).attr("d", generator2);
+            num = categoryArr.indexOf(d.data.key);
+            categoryArr.splice(num, 1); //remove category
+            d3.selectAll(".slice" + i) //all slices
+              // .attr("d", generator2)
+              .attr("d", function(d, i) {
+                if (categoryArr.indexOf(d.data.key) == -1) { //category is not in the categoryArr array
+                  console.log("if");
+                  return generator2;
+                } else {
+                  console.log("else");
+                  return arc;
+                }
+              })
+              .style("opacity", function(d, i) {
+                if (categoryArr.indexOf(d.data.key) == -1) { //category is not in the categoryArr array
+                  return off_opacity;
+                } else {
+                  return 1.0;
+                }
+              });
+          } else {
+            categoryArr.push(d.data.key); //add category
+            d3.selectAll(".slice" + i) //all slices
+              .style("opacity", function(d, i) {
+                if (categoryArr.length == 0) { // how to do this
+                  return 1.0;
+                }
+                if (categoryArr.indexOf(d.data.key) == -1) { //category is not in the categoryArr array
+                  return off_opacity;
+                } else {
+                  return 1.0;
+                }
+              });
+            d3.selectAll(".slice" + i) //all slices
+              .style("opacity", function(d, i) {
+                if (categoryArr.indexOf(d.data.key) == -1) { //category is not in the categoryArr array
+                  return off_opacity;
+                } else {
+                  return 1.0;
+                }
+              });
+          };
+          updateFunction(index, 'false');
+        })
+        .on('mouseover', function(d, i) {
+          d3.selectAll(".slice" + i) //all slices]
+            // .attr("class", "animated bounce")
+            .style("opacity", function(d, i) {
+              if (categoryArr.indexOf(d.data.key) == -1) { //category is not in the categoryArr array
+                return off_opacity;
+              } else {
+                return 1.0;
+              }
+            });
+        })
+        .on('mouseout', function(d, i) {
+          d3.selectAll(".slice" + i) //all slices
+            .style("opacity", function(d, i) {
+              if (categoryArr.indexOf(d.data.key) == -1) { //category is not in the categoryArr array
+                return off_opacity;
+              } else {
+                return 1.0;
+              };
+            });
+        })
+        .style('stroke', 'gray')
+        .style("fill", function(d, i) {
+          return color[i];
+        });
+      g.append("text")
+        .attr("transform", function(d) {
+          return "translate(" + labelArc.centroid(d) + ")";
+        })
+        .text(function(d) {
+          return d.data.key + " = " + d.value;
+        })
+        .style("text-anchor", "middle")
+        .style("font-size", "15px")
+        .style("fill", "white");
+
+      svgPie.append("text")
+        .attr("transform", "translate(0," + (0 - radius) + ")")
+        .text("Swimmers by Category")
+        .style("text-anchor", "middle")
+        .style("fill", "black");
+
+      function arcTween(a) {
+        var i = d3.interpolate(this._current, a);
+        this._current = i(0);
+        return function(t) {
+          return arc(i(t));
+        };
+      };
+      // ****************** - PIE Chart - *******
+    }; // end of updatePie() function
+
+    //---------------------------------------------------------------
+    //---------------****** Start of Table *******---------------
+    //---------------------------------------------------------------
+
+    function updateTable(index) {
+      // console.log("The table function");
+      var sortAscending = true;
+      d3.select(".tableClass").remove();
+
+      var table = d3.select('#table').append('table')
+        .attr("class", "tableClass");
+
+      var titles = d3.keys(data[0]);
+      var titles = ["name", "category", "clocktime", "handicap", "origin"]
+      var headers = table.append('thead').append('tr')
+        .selectAll('th')
+        .data(titles).enter()
+        .append('th')
+        .text(function(d) {
+          return d
+        })
+        .on('click', function(d) {
+          headers.attr('class', 'header');
+          if (d == "name" || d == "club" || d == "category") { //these keys sort alphabetically
+            // sorting alphabetically");
+            if (sortAscending) {
+              rows.sort(function(a, b) {
+                return d3.ascending(a[d], b[d]);
+              });
+              sortAscending = false;
+              this.className = 'aes';
+            } else {
+              rows.sort(function(a, b) {
+                return d3.descending(a[d], b[d]);
+              });
+              sortAscending = true;
+              this.className = 'des';
+            }
+          } else {
+            if (sortAscending) {
+              //all other keys sort numerically including time
+              rows.sort(function(a, b) {
+                return b[d] - a[d];
+              });
+              sortAscending = false;
+              this.className = 'aes';
+            } else {
+              rows.sort(function(a, b) {
+                return a[d] - b[d];
+              });
+              sortAscending = true;
+              this.className = 'des';
+            }
+          }
+        });
+
+      var timeformat = d3.timeFormat("%M:%S");
+      var rows = table.append('tbody').selectAll('tr')
+        .data(data).enter()
+        .append('tr');
+      rows.selectAll('td')
+        .data(function(d) {
+          return titles.map(function(key, i) {
+            return {
+              'value': d[key],
+              'name': d
+            };
+          });
+        }).enter()
+        .append('td')
+        .attr('data-th', function(d) {
+          return d.name;
+        })
+        .text(function(d) {
+          // console.log("typeof(" + d.value + "): " + typeof(d.value));
+          if (typeof(d.value) == "object") {
+            return timeformat(d.value)
+          } else {
+            return d.value
+          }
+        });
+    } // end tableFunction()
+
+    //create brush function redraw scatterplot with selection
+    function brushed() {
+      if (d3.event.sourceEvent && d3.event.sourceEvent.type === "zoom") return; // ignore brush-by-zoom
+
+      // var x = d3.scaleBand()
+      //   .range([0, width])
+      //   .padding([0.6]),
+      //
+      //   x2 = d3.scaleBand()
+      //   .range([0, width])
+      //   .padding([0.6]),
+      //
+      //   y = d3.scaleTime()
+      //   .range([height, 0]),
+      //
+      //   y2 = d3.scaleTime()
+      //   .range([height2, 0]);
+      //
+      // x.domain(data.map(function(d) {
+      //   return d.name
+      // }));
+      // x2 = d3.scaleBand()
+      //   .range([0, width])
+      //   .padding([0.6]);
+      // // set the domains
+      //
+      // // y.domain([parseTime('00:00'), d3.max(data, function(d) {
+      // //   return d.clocktime
+      // // })]);
+      // x2.domain(x.domain());
+      // // y2.domain(y.domain());
+
+      // get bounds of selection
+      var s = d3.event.selection,
+        nD = [];
+      x2.domain().forEach((d) => { //not as smooth as I'd like it
+        var pos = x2(d) + x2.bandwidth() / 2;
+        if (pos > s[0] && pos < s[1]) {
+          nD.push(d);
+        }
+      });
+
+      x.domain(nD);
+
+      // d3.select("rects").remove();
+
+      console.log("focus: " + focus);
+
+      // focus.selectAll(".bar")
+      //   .remove().exit()
+      //   .data(data.filter(function(d) {
+      //     return nD.indexOf(d.name) > -1
+      //   }))
+      //   .enter().append("rect")
+      //   .style("fill", function(d) {
+      //     return "lightblue";
+      //   })
+      //   .style('stroke', 'gray')
+      //   .attr("class", "bar")
+      //   .attr("x", function(d) {
+      //     return x(d.name);
+      //   })
+      //   .attr("y", function(d) {
+      //     return y(d.clocktime);
+      //   })
+      //   .attr("width", x.bandwidth())
+      //   .attr("height", function(d) {
+      //     return height - y(d.clocktime);
+      //   });
+
+      // focus.select(".x-axis").call(xAxis);
+
+      // var e = d3.event.selection;
+      // var selectedrects = focus.selectAll('.rects').filter(function() {
+      //   var xValue = this.getAttribute('x');
+      //   return e[0] <= xValue && xValue <= e[1];
+      // });
+
+      svgBar.select(".zoom").call(zoom.transform, d3.zoomIdentity
+        .scale(width / (s[1] - s[0]))
+        .translate(-s[0], 0));
+    }
+
+    function zoomed() {}
+  </script>
+</body>
