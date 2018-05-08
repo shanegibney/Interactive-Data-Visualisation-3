@@ -194,6 +194,8 @@
       <div class="col-md-12">
         <h5>To do:</h5>
         <ol>
+          <li>Use colour changes for mouseover, click etc not opacity changes</li>
+          <li>On mouse over light version of normal colour. Full colour for sections selected, all else gray. But initially all full colour. </li>
           <li>Make colours on tables rows same as main bar chart</li>
           <li>Clicking pir slices twice removes it. It should take that category out of filtering</li>
           <li>Ticks and axes all need to be lightgray</li>
@@ -330,7 +332,7 @@
 
         data = newdata;
 
-        var parseTime = d3.timeParse("%M:%S");
+        parseTime = d3.timeParse("%M:%S");
         var timeformat = d3.timeFormat("%M:%S");
 
         var stringConditionCategory = ''; //construct condition
@@ -523,7 +525,7 @@
       focus.select(".x.axis").remove();
       // svgBar.append("g")
       focus.append("g")
-        .attr("class", "x axis")
+        .attr("class", "x axis focusAxis")
         // .attr("transform", "translate(" + (margin.left) + "," + (height + margin.top) + ")")
         .attr("transform", "translate(0," + (height) + ")")
         .call(xAxis);
@@ -540,20 +542,20 @@
         .call(yAxis);
 
       // Add the y axis on left
-      // svgBar.select(".y.axis").remove();
-      // svgBar.append("g")
-      //   .attr("class", "y axis")
-      //   .attr("transform", "translate(" + (margin.left) + "," + margin.top + ")")
-      //   .call(yAxis);
+      svgBar.select(".y.axis").remove();
+      svgBar.append("g")
+        .attr("class", "y axis")
+        .attr("transform", "translate(" + (margin.left) + "," + margin.top + ")")
+        .call(yAxis);
 
       // Add the y axis on left
-      // svgBar.append("g")
-      //   .attr("class", "axis")
-      //   .attr("transform", "translate(" + (margin.left) + "," + margin.top + ")")
-      //   .call(d3.axisLeft(y)
-      //     .ticks(7)
-      //     .tickFormat(d3.timeFormat("%M:%S"))
-      //   );
+      svgBar.append("g")
+        .attr("class", "axis")
+        .attr("transform", "translate(" + (margin.left) + "," + margin.top + ")")
+        .call(d3.axisLeft(y)
+          .ticks(7)
+          .tickFormat(d3.timeFormat("%M:%S"))
+        );
 
       //---------------------------------------------------------------
       //----****** Start Main Bar Chart Rects for clocktime ******-----
@@ -850,9 +852,9 @@
         .call(xAxis2);
 
       context.append("g")
-        .attr("class", "brush");
-      // .call(brush)
-      // .call(brush.move, x.range());
+        .attr("class", "brush")
+        .call(brush)
+        .call(brush.move, x.range());
 
     }; // end of updateBar() function
 
@@ -1387,8 +1389,6 @@
 
       // d3.select("rects").remove();
 
-      console.log("focus: " + focus);
-
       focus.selectAll(".bar")
         .remove().exit()
         .data(data.filter(function(d) {
@@ -1441,10 +1441,11 @@
 
       // focus.select(".x-axis").call(xAxis);
       focus.select(".focusAxis").remove();
+      // focus.select(".x.axis").remove();
 
       //need to remove group first
       focus.append("g")
-        .attr("class", "focusAxis")
+        .attr("class", "focusAxis axis")
         // .attr("transform", "translate(" + (margin.left) + "," + (height + margin.top) + ")")
         .attr("transform", "translate(0," + (height) + ")")
         .call(xAxis);
