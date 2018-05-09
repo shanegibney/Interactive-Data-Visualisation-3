@@ -199,6 +199,7 @@
           <li>Make colours on tables rows same as main bar chart</li>
           <li>Clicking pir slices twice removes it. It should take that category out of filtering</li>
           <li>Ticks and axes all need to be lightgray</li>
+          <li>Add handles to brush</li>
           <li>Remove small white line beneath Home button</li>
           <li>Need a bar chart for points by club, similar to number of swimmers by club</li>
           <li>Numbers on origin bar chart need to appear just after animation and to fade in</li>
@@ -281,6 +282,7 @@
     var content = null;
 
     var parseTime = null;
+    var timeformat = d3.timeFormat("%M:%S");
 
     var x = null,
       y = null,
@@ -303,9 +305,6 @@
       location.reload();
     }
 
-    function sortFunction(sortOn) {
-      console.log("Sort by: " + sortOn);
-    }
     // function init(indexInit) {
     //   categoryArr = [];
     //   originArr = [];
@@ -332,7 +331,7 @@
 
         data = newdata;
 
-        parseTime = d3.timeParse("%M:%S");
+        var parseTime = d3.timeParse("%M:%S");
         var timeformat = d3.timeFormat("%M:%S");
 
         var stringConditionCategory = ''; //construct condition
@@ -399,9 +398,6 @@
           document.getElementById("filter").innerHTML = "<h5><pre></pre></h5>";
         }
 
-        // data.forEach(function(d) {
-        //   d.clocktime = +d.clocktime;
-        // })
         data.forEach(function(d) {
           d.clocktime = parseTime(d.clocktime);
           d.handicap = parseTime(d.handicap);
@@ -617,8 +613,22 @@
         }) // bars start with zero height
         .attr("width", x.bandwidth()) //why is the width not consistent
         // .attr("width", 50)
-        .style('stroke', 'gray')
+        .style('stroke', 'blue')
         .style("fill", "#96C0CE")
+        .on("mouseover", function(d) {
+          console.log("I am mousing over");
+          // div.transition()
+          //   .duration(200)
+          //   .style("opacity", .9);
+          // div.html(formatTime(d.date) + "<br/>" + d.close)
+          //   .style("left", (d3.event.pageX) + "px")
+          //   .style("top", (d3.event.pageY - 28) + "px");
+        })
+        // .on("mouseout", function(d) {
+        //   div.transition()
+        //     .duration(500)
+        //     .style("opacity", 0);
+        // })
         .transition(d3.transition()
           .delay(500))
         .duration(750)
@@ -1462,5 +1472,71 @@
     }
 
     function zoomed() {}
+
+    function sortFunction(sortOn) {
+      console.log("Sort by: " + sortOn);
+
+      //need to create racetime from clocktime and handicap Values
+      //racetime = clocktime - handicap
+
+      // data.forEach(function(d) {
+      //   // d.clocktime = parseTime(d.clocktime);
+      //   // d.handicap = parseTime(d.handicap);
+      //   console.log("d.clocktime: " + d.clocktime); //data is accessible in this function
+      // });
+      var diff = null;
+      var seconds = null;
+      var minutes = null;
+      var hours = null;
+      // var timeformat = d3.timeFormat("%M:%S");
+
+      data.forEach(function(d) {
+        diff = d.clocktime - d.handicap; //outputs seconds
+        seconds = Math.floor(diff / 1000);
+        minutes = Math.floor(seconds / 60);
+        seconds = seconds % 60;
+        d.racetime = new Date('January 01, 1900 00:' + minutes + ':' + seconds);
+        // console.log("d.racetime: " + d.racetime);
+        //
+        document.getElementById("json").innerHTML = "<h5>data3.json</h5>" + "<pre>" + JSON.stringify(data, null, 2) + "</pre>";
+      });
+
+      // return new Date(b.racetime) - new Date(a.racetime);
+
+      // var x0 = x.domain(data.sort(this.value == "val1" ?
+      var x0 = x.domain(data.sort(sortOn == "clock" ?
+          (function(a, b) {
+            return new Date(b.clocktime) - new Date(a.clocktime);
+          }) : ((sortOn == "race") ?
+            (function(a, b) {
+              return new Date(b.racetime) - new Date(a.racetime);
+            }) : (function(a, b) {
+              return new Date(b.handicap) - new Date(a.handicap);
+            }))).map(function(d) {
+          return d.name;
+        }))
+        .copy();
+
+      focus.selectAll(".bar")
+        .sort(function(a, b) {
+          return x0(a.name) - x0(b.name);
+        });
+
+      var transition = focus.transition().duration(750),
+        delay = function(d, i) {
+          return i * 50;
+        };
+
+      transition.selectAll(".bar")
+        .delay(delay)
+        .attr("x", function(d) {
+          return x0(d.name);
+        });
+
+      transition.select(".x.axis")
+        .call(xAxis)
+        .selectAll("g")
+        .delay(delay);
+    }
   </script>
 </body>
